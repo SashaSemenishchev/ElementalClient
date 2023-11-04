@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "package": "me.mrfunny.elementalclient.injection.mixins",
+  "refmap": "elementalclient.mixins.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "MixinChat",
+    "MixinEntityRenderer",
+    "MixinGuiIngame",
+    "MixinGuiScreen",
+    "MixinKeyBinding",
+    "MixinMinecraft",
+    "MixinRender",
+    "MixinRenderLivingEntity",
+    "MixinSettingsGui"
+  ]
+}
