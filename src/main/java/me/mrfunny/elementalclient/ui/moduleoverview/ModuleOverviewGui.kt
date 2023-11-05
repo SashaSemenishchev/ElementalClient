@@ -28,9 +28,11 @@ import me.mrfunny.elementalclient.profiles.ProfileManager
 import me.mrfunny.elementalclient.profiles.ProfileManager.niceName
 import me.mrfunny.elementalclient.ui.NoBackground
 import me.mrfunny.elementalclient.ui.dialog.ProfileNameDialog
+import java.util.function.Predicate
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.streams.toList
 
 class ModuleOverviewGui : WindowScreen(
     version = ElementaVersion.V2,
@@ -43,7 +45,6 @@ class ModuleOverviewGui : WindowScreen(
         y = CenterConstraint()
         width = 85.percent
         height = 75.percent
-//        this.color = ConstantColorConstraint(
     } childOf window
 
     private val titleBar by OverviewTitleBar(this) childOf container
@@ -52,7 +53,6 @@ class ModuleOverviewGui : WindowScreen(
         y = SiblingConstraint()
         width = 100.percent
         height = FillConstraint()
-//        background.setColor(VigilancePalette.getMainBackground())
     } childOf container
 
     private val leftDivider by UIBlock(VigilancePalette.getDividerDark()).constrain {
@@ -136,13 +136,14 @@ class ModuleOverviewGui : WindowScreen(
 
     private val moduleToMiniatures = linkedMapOf<Module, ModuleMiniature>()
     private var selectedProfile: ProfileLabel? = null
+    val componentsPerRow: Float
     init {
         var lowestWidth = Float.MAX_VALUE
         for (module in ModuleManager.modules) {
             val miniature = ModuleMiniature(module).constrain {
-                x = SiblingConstraint()
+                x = SiblingConstraint(5f)
                 width = MinConstraint((25.percent boundTo scroller), 100.pixels)
-                height = MaxConstraint((33.33f.percent boundTo scroller), 110.pixels)
+                height = MinConstraint((33.33f.percent boundTo scroller), 110.pixels)
             }
             val componentWidth = miniature.getWidth()
             if(componentWidth < lowestWidth) {
@@ -151,32 +152,12 @@ class ModuleOverviewGui : WindowScreen(
             moduleToMiniatures[module] = miniature
         }
 
-        val componentsPerRow = scroller.getWidth() / lowestWidth
+        componentsPerRow = scroller.getWidth() / lowestWidth
         if(componentsPerRow < 1f) {
             throw IllegalStateException("For some reason we can't render even 1 component in a row")
         }
 
-        val modulesToTake = moduleToMiniatures.values.iterator()
-        for(row in 0 until ceil(moduleToMiniatures.size / componentsPerRow).roundToInt()) {
-            val rowComponent = UIContainer().constrain {
-                x = CenterConstraint()
-                y = SiblingConstraint(5f)
-                width = ChildBasedSizeConstraint()
-                height = ChildBasedSizeConstraint()
-            } childOf scroller
-            val count = floor(componentsPerRow).roundToInt()
-            for(i in 0 until count) {
-                if(i != 0) {
-                    UIContainer().constrain {
-                        width = 5.pixels
-                        x = SiblingConstraint()
-                    } childOf rowComponent
-                }
-                if(!modulesToTake.hasNext()) break
-                modulesToTake.next() childOf rowComponent
-            }
-        }
-
+        rebuildModules(null)
         val nowSelected = ProfileManager.selectedProfile
         for (availableProfile in ProfileManager.availableProfiles) {
             val formatted = availableProfile.niceName()
@@ -240,7 +221,7 @@ class ModuleOverviewGui : WindowScreen(
 
         window.onKeyType { _, keyCode ->
             if (UKeyboard.isKeyDown(UKeyboard.KEY_MINUS)) {
-                Inspector(window) childOf window
+                Inspector(scroller) childOf window
                 return@onKeyType
             }
         }
@@ -265,24 +246,65 @@ class ModuleOverviewGui : WindowScreen(
         return null
     }
 
+    fun rebuildModules(predicate: Predicate<ModuleMiniature>?) {
+        val modulesToTake = moduleToMiniatures
+            .values
+            .let {
+                return@let if(predicate != null) {
+                    it.stream()
+                        .filter(predicate)
+                } else {
+                    it.stream()
+                }
+            }
+            .sorted(Comparator.comparing({ it?.module }, ModuleManager.modulesComparator))
+            .toList()
+        val iterator = modulesToTake.iterator()
+        scroller.clearChildren()
+        for(row in 0 until ceil(modulesToTake.size / componentsPerRow).roundToInt()) {
+            val rowComponent = UIContainer().constrain {
+                x = CenterConstraint()
+                y = SiblingConstraint(5f)
+                width = ChildBasedSizeConstraint()
+//                height = ChildBasedSizeConstraint()
+            }
+            val count = floor(componentsPerRow).roundToInt()
+            for(i in 0 until count) {
+                if(!iterator.hasNext()) break
+                iterator.next() childOf rowComponent
+            }
+            if(rowComponent.children.size == 0) continue
+            rowComponent.constrain {
+                height = ChildBasedSizeConstraint() boundTo rowComponent.children[0]
+            }
+            rowComponent childOf scroller
+        }
+    }
+
     fun filterModules(query: String) {
         val lower = query.lowercase()
-        var hidden = 0
-        val miniatures = moduleToMiniatures
-        for (entry in miniatures.entries) {
-            val module = entry.key
-            val gui = entry.value
-            if(lower in module.name.lowercase() || lower in module.spacedName.lowercase()) {
-                gui.unhide(true)
-                continue
-            }
-            if(!gui.hasParent) {
-                gui childOf scroller
-            }
-            gui.hide(true)
-            hidden++
+
+        rebuildModules {
+            val module = it.module
+            return@rebuildModules (lower in module.name.lowercase() || lower in module.spacedName.lowercase())
         }
-        if(hidden == miniatures.size) {
+//        var hidden = 0
+//        val miniatures = moduleToMiniatures
+//        for (entry in miniatures.entries) {
+//            val module = entry.key
+//            val gui = entry.value
+//            if(lower in module.name.lowercase() || lower in module.spacedName.lowercase()) {
+//                gui.unhide(true)
+//                continue
+//            }
+//            if(!gui.hasParent) {
+//                gui childOf scroller
+//            }
+//            gui.hide(true)
+//            hidden++
+//        }
+
+        if(scroller.children.size == 0) {
             if("shit" in lower) {
                 scroller.emptyText.setText("Mad?")
             } else {
@@ -293,7 +315,6 @@ class ModuleOverviewGui : WindowScreen(
         }
 
         scroller.emptyText.hide()
-        scroller.sortChildren(Comparator.comparing({ (it as? ModuleMiniature)?.module }, ModuleManager.modulesComparator))
     }
 
     companion object {

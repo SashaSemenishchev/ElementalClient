@@ -1,10 +1,8 @@
 package me.mrfunny.elementalclient.ui.moduleoverview
 
+import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.*
-import gg.essential.elementa.constraints.CenterConstraint
-import gg.essential.elementa.constraints.ConstantColorConstraint
-import gg.essential.elementa.constraints.FillConstraint
-import gg.essential.elementa.constraints.SiblingConstraint
+import gg.essential.elementa.constraints.*
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
 import gg.essential.elementa.effects.ScissorEffect
@@ -62,12 +60,11 @@ class ModuleMiniature(val module: Module) : UIBlock(VigilancePalette.getDividerD
             width = 100.percent
         } childOf this
 
-
         statusBlock childOf this
         enabledText childOf statusBlock
         UIContainer().constrain {
-            width = (statusBlock.getWidth() - 10).pixels
-            height = statusBlock.getHeight().pixels
+            width = 90.percent
+            height = 100.percent
         }.childOf(statusBlock).onMouseEnter {
             parent.animate {
                 setColorAnimation(Animations.OUT_EXP, .25f, colorState.map { it.brighter() }.toConstraint())
@@ -84,19 +81,19 @@ class ModuleMiniature(val module: Module) : UIBlock(VigilancePalette.getDividerD
         }
         val dotsColor = BasicState(Color.WHITE)
         val dots = UIContainer().constrain {
-            y = 6f.pixels
-            x = (statusBlock.getWidth() - 10).pixels
+            y = CenterConstraint()
+            x = 0.pixels(true)
             width = 10.pixels
-            height = statusBlock.getHeight().pixels
+            height = ChildBasedSizeConstraint()
         }.onMouseEnter {
             for (child in children) {
-                child.animate {
+                child.children[0].animate {
                     setColorAnimation(Animations.OUT_EXP, .25f, dotsColor.map { it.darker() }.toConstraint())
                 }
             }
         }.onMouseLeave {
             for (child in children) {
-                child.animate {
+                child.children[0].animate {
                     setColorAnimation(Animations.OUT_EXP, .25f, dotsColor.toConstraint())
                 }
             }
@@ -110,19 +107,34 @@ class ModuleMiniature(val module: Module) : UIBlock(VigilancePalette.getDividerD
             UScreen.displayScreen(screen)
             screen.guiAtModule(module)
         } childOf statusBlock
-        morePropertiesDot(dotsColor) childOf dots
-        morePropertiesDot(dotsColor) childOf dots
-        morePropertiesDot(dotsColor) childOf dots
+        morePropertiesDot(dots, dotsColor)
+        morePropertiesDot(dots, dotsColor)
+        morePropertiesDot(dots, dotsColor)
     }
 
     fun update() {
         enabledText.bindText(text)
         statusBlock.setColor(colorState.get())
     }
-
-    private fun morePropertiesDot(state: BasicState<Color>) = UICircle(2f).constrain {
-        x = CenterConstraint()
-        y = SiblingConstraint(2f)
-        color = ConstantColorConstraint(state)
+    private fun makeCircle(radius: Float): UIComponent {
+        val circle = UICircle(radius).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+        }
+        return UIContainer().constrain {
+            width = circle.getWidth().pixels
+            height = circle.getWidth().pixels
+        }.also { circle childOf it }
     }
+    private fun morePropertiesDot(parent: UIComponent, state: BasicState<Color>) = makeCircle(2f).constrain {
+//        if(padding) {
+//            UIContainer().constrain {
+//                height = 0.2.pixels
+//                y = SiblingConstraint()
+//            } childOf parent
+//        }
+        x = CenterConstraint()
+        y = SiblingConstraint()
+        color = ConstantColorConstraint(state)
+    } childOf parent
 }
