@@ -35,10 +35,7 @@ class ModuleMiniature(val module: Module) : UIBlock(VigilancePalette.getDividerD
         height = FillConstraint()
     }
     init {
-        constrain {
-            width = 100.pixels
-            height = 110.pixels
-        } effect ScissorEffect()
+        this effect ScissorEffect()
         UIContainer().constrain {
             y = SiblingConstraint()
             height = 7.pixels

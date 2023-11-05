@@ -3,6 +3,7 @@
 package me.mrfunny.elementalclient.ui.moduleoverview
 
 import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.*
 import gg.essential.elementa.components.inspector.Inspector
@@ -27,6 +28,9 @@ import me.mrfunny.elementalclient.profiles.ProfileManager
 import me.mrfunny.elementalclient.profiles.ProfileManager.niceName
 import me.mrfunny.elementalclient.ui.NoBackground
 import me.mrfunny.elementalclient.ui.dialog.ProfileNameDialog
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
 class ModuleOverviewGui : WindowScreen(
     version = ElementaVersion.V2,
@@ -133,21 +137,47 @@ class ModuleOverviewGui : WindowScreen(
     private val moduleToMiniatures = linkedMapOf<Module, ModuleMiniature>()
     private var selectedProfile: ProfileLabel? = null
     init {
-        UIContainer().constrain {
-            x = SiblingConstraint()
-            height = 100.percent
-            width = 7f.pixels
-        } childOf scroller
+        var lowestWidth = Float.MAX_VALUE
         for (module in ModuleManager.modules) {
             val miniature = ModuleMiniature(module).constrain {
-                y = CramSiblingConstraint(3f)
-                x = CramSiblingConstraint(3f)
-            } childOf scroller
+                x = SiblingConstraint()
+                width = MinConstraint((25.percent boundTo scroller), 100.pixels)
+                height = MaxConstraint((33.33f.percent boundTo scroller), 110.pixels)
+            }
+            val componentWidth = miniature.getWidth()
+            if(componentWidth < lowestWidth) {
+                lowestWidth = componentWidth
+            }
             moduleToMiniatures[module] = miniature
         }
 
+        val componentsPerRow = scroller.getWidth() / lowestWidth
+        if(componentsPerRow < 1f) {
+            throw IllegalStateException("For some reason we can't render even 1 component in a row")
+        }
+
+        val modulesToTake = moduleToMiniatures.values.iterator()
+        for(row in 0 until ceil(moduleToMiniatures.size / componentsPerRow).roundToInt()) {
+            val rowComponent = UIContainer().constrain {
+                x = CenterConstraint()
+                y = SiblingConstraint(5f)
+                width = ChildBasedSizeConstraint()
+                height = ChildBasedSizeConstraint()
+            } childOf scroller
+            val count = floor(componentsPerRow).roundToInt()
+            for(i in 0 until count) {
+                if(i != 0) {
+                    UIContainer().constrain {
+                        width = 5.pixels
+                        x = SiblingConstraint()
+                    } childOf rowComponent
+                }
+                if(!modulesToTake.hasNext()) break
+                modulesToTake.next() childOf rowComponent
+            }
+        }
+
         val nowSelected = ProfileManager.selectedProfile
-//        var label: ProfileLabel? = null
         for (availableProfile in ProfileManager.availableProfiles) {
             val formatted = availableProfile.niceName()
             val flag = formatted == nowSelected
@@ -228,7 +258,7 @@ class ModuleOverviewGui : WindowScreen(
         }
         try {
             ProfileManager.createProfile(name)
-            UScreen.displayScreen(ModuleOverviewGui())
+            displayScreen(ModuleOverviewGui())
         } catch (e: Throwable) {
             return e.message
         }
@@ -239,14 +269,15 @@ class ModuleOverviewGui : WindowScreen(
         val lower = query.lowercase()
         var hidden = 0
         val miniatures = moduleToMiniatures
-//        val shown = ArrayList<ModuleMiniature>(miniatures.size)
-//        scroller.allChildren
         for (entry in miniatures.entries) {
             val module = entry.key
             val gui = entry.value
             if(lower in module.name.lowercase() || lower in module.spacedName.lowercase()) {
                 gui.unhide(true)
                 continue
+            }
+            if(!gui.hasParent) {
+                gui childOf scroller
             }
             gui.hide(true)
             hidden++
@@ -258,16 +289,11 @@ class ModuleOverviewGui : WindowScreen(
                 scroller.emptyText.setText(emptyString)
             }
             scroller.emptyText.unhide(false)
-
             return
         }
 
         scroller.emptyText.hide()
         scroller.sortChildren(Comparator.comparing({ (it as? ModuleMiniature)?.module }, ModuleManager.modulesComparator))
-//        shown.sortWith(Comparator.comparing({ it.module }, ModuleManager.modulesComparator))
-//        for (moduleMiniature in shown) {
-//            moduleMiniature.unhide()
-//        }
     }
 
     companion object {

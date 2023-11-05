@@ -26,6 +26,7 @@ public class MixinRenderLivingEntity<T extends EntityLivingBase> {
 
     @Inject(method = "canRenderName(Lnet/minecraft/entity/EntityLivingBase;)Z", at = @At("HEAD"), cancellable = true)
     public void renderOwnName(T entity, CallbackInfoReturnable<Boolean> cir) {
+        if(entity != mc.thePlayer) return;
         if(RenderOwnName.INSTANCE.getState()) {
             cir.setReturnValue(true);
         }

@@ -33,7 +33,7 @@ Vigilant(
             Keystrokes(),
             NoHurtCam,
             RenderOwnName,
-            TestModule
+//            TestModule
         )
 
         initDone()

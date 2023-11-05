@@ -115,11 +115,11 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
     fun makeBlock(keyBinding: KeyBinding): TextBlock {
 
         val result = TextBlock(
-            UIWrappedText(getBindName(keyBinding)).constrain {
+            UIText(getBindName(keyBinding)).constrain {
                 x = CenterConstraint()
                 y = CenterConstraint()
-                width = 14.pixels
-                height = 14.pixels
+//                width = 14.pixels
+//                height = 14.pixels
 //                width = 100.percent
 //                height = 100.percent
                 color = AlphaAspectColorConstraint(textColor, textColor.alpha / 255f)
