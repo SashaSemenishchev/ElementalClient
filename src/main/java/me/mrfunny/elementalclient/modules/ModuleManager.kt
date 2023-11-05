@@ -26,7 +26,7 @@ Vigilant(
     var disableWrites = true
     fun init() {
         ProfileManager.selectDefaultProfile()
-        ProfileManager.init()
+        ProfileManager.initSettings()
 
         registerModules(
             AutoGG(),

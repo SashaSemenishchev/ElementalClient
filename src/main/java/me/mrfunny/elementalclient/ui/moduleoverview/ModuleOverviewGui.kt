@@ -184,7 +184,7 @@ class ModuleOverviewGui : WindowScreen(
         }
 
         val scrollerColor = BasicState(VigilancePalette.getButton())
-        val plusButton = UIBlock(AlphaAspectColorConstraint(scrollerColor.get(), 0.7f)).constrain {
+        UIBlock(AlphaAspectColorConstraint(scrollerColor.get(), 0.7f)).constrain {
             y = SiblingConstraint()
             x = CenterConstraint()
             width = ChildBasedSizeConstraint() + 25.pixels

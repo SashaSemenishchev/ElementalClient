@@ -1,7 +1,6 @@
 package me.mrfunny.elementalclient.profiles
 
 import me.mrfunny.elementalclient.ElementalClient
-import me.mrfunny.elementalclient.event.ModuleStateChangeEvent
 import me.mrfunny.elementalclient.modules.ModuleManager
 import java.io.File
 import java.lang.IllegalArgumentException
@@ -37,7 +36,7 @@ object ProfileManager {
         return flag
     }
 
-    fun init() {
+    fun initSettings() {
         ModuleManager.category("General Settings") {
             subcategory("Appearance") {
                 selector(
@@ -54,11 +53,12 @@ object ProfileManager {
     }
 
     fun selectDefaultProfile() {
-        val file = File(data.readText())
+        val selected = data.readText()
+        val file = File("${profiles.absolutePath}/$selected.toml")
         val profile = if(!file.exists()) {
             "default"
         } else {
-            file.readText()
+            selected
         }
         selectProfile(profile)
     }

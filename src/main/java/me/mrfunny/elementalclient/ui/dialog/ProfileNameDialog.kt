@@ -13,7 +13,7 @@ import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.utils.onLeftClick
 
 class ProfileNameDialog(onRun: ProfileNameDialog.(String) -> Boolean): UIContainer() {
-    val titlebar by UIBlock(VigilancePalette.getMainBackground()) childOf this
+    val titlebar by UIBlock(VigilancePalette.getDividerDark()) childOf this
     val title by UIText("New Profile").constrain {
         x = 2.pixels
         y = 2.pixels

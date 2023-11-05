@@ -6,10 +6,7 @@ import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.UIWrappedText
 import gg.essential.elementa.components.inspector.Inspector
-import gg.essential.elementa.constraints.AlphaAspectColorConstraint
-import gg.essential.elementa.constraints.CenterConstraint
-import gg.essential.elementa.constraints.ChildBasedSizeConstraint
-import gg.essential.elementa.constraints.FillConstraint
+import gg.essential.elementa.constraints.*
 import gg.essential.elementa.constraints.animation.AnimationStrategy
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
@@ -21,6 +18,7 @@ import me.mrfunny.elementalclient.modules.BoolValue
 import me.mrfunny.elementalclient.modules.ColorValue
 import me.mrfunny.elementalclient.modules.HudModule
 import me.mrfunny.elementalclient.modules.PercentageValue
+import me.mrfunny.elementalclient.ui.Components.toAlphaConstraint
 import net.minecraft.client.settings.KeyBinding
 import java.awt.Color
 import java.util.*
@@ -102,11 +100,27 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
                 height = it.getHeight().pixels
             }
         } childOf result
+        val space = mc.gameSettings.keyBindJump
         if(showSpacebar) {
+            val bg = UIBlock(bgColor.toAlphaConstraint()).constrain {
+                width = 54.pixels
+                height = 10.pixels
+            }
+            val content = UIBlock(textColor.toAlphaConstraint()).constrain {
+                y = CenterConstraint() boundTo bg
+                x = CenterConstraint() boundTo bg
+                width = 20.pixels
+                height = 1.5.pixels
+            }
+            keybindMap[space] = TextBlock(content, bg).constrain {
+                y = SiblingConstraint(2f)
+            }.also { it childOf result }
 //            UIBlock(Color.BLACK).constrain {
 //                width = FillConstraint()
 //                height = 5.pixels
 //            } childOf result
+        } else {
+            keybindMap.remove(space)
         }
 
         return result
@@ -122,9 +136,9 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
 //                height = 14.pixels
 //                width = 100.percent
 //                height = 100.percent
-                color = AlphaAspectColorConstraint(textColor, textColor.alpha / 255f)
+                color = textColor.toAlphaConstraint()
             },
-            UIBlock(AlphaAspectColorConstraint(bgColor, bgColor.alpha / 255f)).constrain {
+            UIBlock(bgColor.toAlphaConstraint()).constrain {
                 x = CenterConstraint()
                 y = CenterConstraint()
             }
@@ -138,15 +152,15 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
     val onKeyPress = Consumer<KeyStateChangeEvent> {
         val textBlock = keybindMap[it.keybind] ?: return@Consumer
         val bg = if(it.newState) {
-            AlphaAspectColorConstraint(bgColorWhenPressed, bgColorWhenPressed.alpha / 255f)
+            bgColorWhenPressed.toAlphaConstraint()
         } else {
-            AlphaAspectColorConstraint(bgColor, bgColor.alpha / 255f)
+            bgColor.toAlphaConstraint()
         }
 
         val text = if(it.newState) {
-            AlphaAspectColorConstraint(textColorWhenPressed, textColorWhenPressed.alpha / 255f)
+            textColorWhenPressed.toAlphaConstraint()
         } else {
-            AlphaAspectColorConstraint(textColor, textColor.alpha / 255f)
+            textColor.toAlphaConstraint()
         }
         val strategy: AnimationStrategy = Animations.IN_OUT_SIN
         textBlock.bg.animate {
@@ -168,6 +182,10 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         init {
             bg childOf this
             content childOf this
+            this.constrain {
+                width = ChildBasedSizeConstraint()
+                height = ChildBasedSizeConstraint()
+            }
         }
     }
 }

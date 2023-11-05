@@ -34,4 +34,6 @@ object Components {
         hsv[2] -= 0.1f
         setColor(Color(Color.HSBtoRGB(hsv[0], hsv[1], hsv[2])))
     }
+
+    fun Color.toAlphaConstraint() = AlphaAspectColorConstraint(this, this.alpha / 255f)
 }
