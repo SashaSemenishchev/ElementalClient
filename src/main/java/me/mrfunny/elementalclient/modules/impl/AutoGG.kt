@@ -47,7 +47,7 @@ class AutoGG : Module("AutoGG", "Automatically sends 'Good Game' message when ga
         }
 
         if(!triggered) return@Consumer
-        if(System.currentTimeMillis() - lastTriggered < delayBetweenTriggers) return@Consumer
+        if(System.currentTimeMillis() - lastTriggered < delayBetweenTriggers * 1000) return@Consumer
         lastTriggered = System.currentTimeMillis()
         ElementalClient.executor.schedule({
             mc.thePlayer.sendChatMessage(text1)

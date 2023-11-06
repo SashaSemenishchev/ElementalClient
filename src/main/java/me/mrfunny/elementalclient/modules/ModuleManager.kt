@@ -1,3 +1,5 @@
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package me.mrfunny.elementalclient.modules
 
 import gg.essential.universal.UScreen
@@ -33,7 +35,7 @@ Vigilant(
             Keystrokes(),
             NoHurtCam,
             RenderOwnName,
-            TestModule
+//            TestModule
         )
 
         initDone()
@@ -59,7 +61,7 @@ Vigilant(
                 KPropertyBackedPropertyValue(module::state),
                 ModuleManager
             )
-            registerProperty(enabled)
+            properties.add(enabled)
             module.backingProperty = enabled
             subcategory("Settings") {
                 registerSettings(this, module)
@@ -67,9 +69,6 @@ Vigilant(
         }
 
         setCategoryDescription(module.spacedName, (if(module is InProgress) "§e[IN PROGRESS]§r " else "") + module.description)
-        if(loaded) {
-            loadData()
-        }
         modules += module
         categories.clear()
         for (category in getCategories()) {
@@ -83,6 +82,7 @@ Vigilant(
         loadData()
         loaded = true
         modules.sortWith(modulesComparator)
+        ElementalClient.hudScreen.init()
     }
 
     override fun readData() {
@@ -94,8 +94,9 @@ Vigilant(
         for (module in modules) {
             module.init()
             for (internalValue: Value<Any> in module.internalValues as ArrayList<Value<Any>>) {
-                val property: Any = fileConfig.get(internalValue.propertyPath) ?: continue
+                val property: Any = fileConfig.get(internalValue.propertyPath) ?: internalValue.value
                 internalValue.value = property
+                fileConfig.set<Any>(internalValue.propertyPath, internalValue.value)
             }
         }
     }

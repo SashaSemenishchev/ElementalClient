@@ -82,11 +82,13 @@ object ProfileManager {
             ElementalClient.hudScreen.init()
             return
         }
-        ModuleManager.file = profile
-        data.writeText(name)
-        ModuleManager.disableWrites = false
-        ElementalClient.hudScreen.init()
 
+        if(ModuleManager.loaded) {
+            ModuleManager.reloadFrom(profile)
+            ElementalClient.hudScreen.init()
+            ModuleManager.disableWrites = false
+        }
+        data.writeText(name)
     }
 
     fun String.niceName() = this.replace(".toml", "")

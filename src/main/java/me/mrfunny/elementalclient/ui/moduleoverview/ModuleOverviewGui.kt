@@ -143,7 +143,7 @@ class ModuleOverviewGui : WindowScreen(
             val miniature = ModuleMiniature(module).constrain {
                 x = SiblingConstraint(5f)
                 width = MinConstraint((25.percent boundTo scroller), 100.pixels)
-                height = MinConstraint((33.33f.percent boundTo scroller), 110.pixels)
+                height = 110.pixels
             }
             val componentWidth = miniature.getWidth()
             if(componentWidth < lowestWidth) {
