@@ -116,34 +116,29 @@ Vigilant(
 
     private fun registerSettings(builder: CategoryPropertyBuilder, module: Module) {
         for (value in module.values) {
-            val hidden = !value.isSupported()
-            when(value) {
-                is BoolValue -> {
-                    builder.checkbox(value::value, value.name, value.description, true, hidden)
-                }
-                is IntegerValue -> {
-                    if(value.isSlider) {
-                        builder.slider(value::value, value.name, value.description, value.minimum, value.maximum, true, hidden)
+            val property = when(value) {
+                is BoolValue -> builder.checkbox(value::value, value.name, value.description, true)
+                is IntegerValue -> if(value.isSlider) {
+                        builder.slider(value::value, value.name, value.description, value.minimum, value.maximum, true)
                     } else {
-                        builder.number(value::value, value.name, value.description, value.minimum, value.maximum, true, hidden)
+                        builder.number(value::value, value.name, value.description, value.minimum, value.maximum, true)
                     }
-                }
-                is PercentageValue -> {
-                    builder.percentSlider(value::value, value.name, value.description,true, hidden)
-                }
-                is FloatValue -> {
-                    builder.decimalSlider(value::value, value.name, value.description, value.minimum, value.maximum, value.decimalPlaces, true, hidden)
-                }
-                is TextValue -> {
-                    builder.text(value::value, value.name, value.description, value.placeholder, true, hidden, false)
-                }
-                is ListValue -> {
-                    builder.selector(value::value, value.name, value.description, value.values, true, hidden)
-                }
-                is ColorValue -> {
-                    builder.color(value::value, value.name, value.description, true, true, hidden)
-                }
+
+                is PercentageValue ->
+                    builder.percentSlider(value::value, value.name, value.description,true)
+
+                is FloatValue ->
+                    builder.decimalSlider(value::value, value.name, value.description, value.minimum, value.maximum, value.decimalPlaces, true)
+                is TextValue ->
+                    builder.text(value::value, value.name, value.description, value.placeholder, true, protectedText = value.protectedText)
+                is ListValue ->
+                    builder.selector(value::value, value.name, value.description, value.values, true)
+                is ColorValue ->
+                    builder.color(value::value, value.name, value.description, true, true)
+
+                else -> null
             }
+            property?.dependencyPredicate = { value.isSupported() }
         }
     }
 

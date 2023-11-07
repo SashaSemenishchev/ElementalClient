@@ -7,7 +7,9 @@ import me.mrfunny.elementalclient.event.EventLink
 import me.mrfunny.elementalclient.event.TickEvent
 import me.mrfunny.elementalclient.event.WorldBeginLoadEvent
 import me.mrfunny.elementalclient.modules.ModuleManager
+import me.mrfunny.elementalclient.ui.hud.HudEditGui
 import me.mrfunny.elementalclient.ui.hud.HudScreen
+import me.mrfunny.elementalclient.ui.misc.ElementalMainMenu
 import me.mrfunny.elementalclient.ui.moduleoverview.ModuleOverviewGui
 import net.minecraft.client.Minecraft
 import net.minecraft.client.settings.KeyBinding
@@ -59,7 +61,8 @@ object ElementalClient {
         @EventLink
         val ticker = Consumer<TickEvent> {
             if(optionsKeyBinding.isPressed) {
-                UScreen.displayScreen(ModuleOverviewGui())
+//                UScreen.displayScreen(ModuleOverviewGui())
+                UScreen.displayScreen(ElementalMainMenu())
             }
         }
 

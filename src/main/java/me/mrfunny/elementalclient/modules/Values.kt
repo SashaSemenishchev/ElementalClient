@@ -7,16 +7,13 @@ package me.mrfunny.elementalclient.modules
  */
 import gg.essential.elementa.state.State
 import gg.essential.vigilance.data.PropertyType
-import net.minecraft.client.gui.FontRenderer
 import java.awt.Color
-import kotlin.math.max
 import kotlin.math.pow
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty0
 
-abstract class Value<T>(val name: String, open var value: T, private val isSupported: (() -> Boolean)?, open var description: String="")
+abstract class Value<T>(val name: String, open var value: T, val isSupportedPredicate: (() -> Boolean)?, open var description: String="")
     : ReadWriteProperty<Any?, T> {
     open var propertyPath: String? = null
     open var onChangeListener: (old: T, new: T) -> Unit = {_, _ -> }
@@ -43,7 +40,7 @@ abstract class Value<T>(val name: String, open var value: T, private val isSuppo
     protected open fun onChange(oldValue: T, newValue: T): T {
         return newValue
     }
-    open fun isSupported() = isSupported?.invoke() ?: true
+    open fun isSupported() = isSupportedPredicate?.invoke() ?: true
 
     // Support for delegating values using the `by` keyword.
     override operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
@@ -124,7 +121,7 @@ open class PercentageValue(name: String, value: Float, isSupported: (() -> Boole
 /**
  * Text value represents a value with a string
  */
-open class TextValue(name: String, value: String="", isSupported: (() -> Boolean)?=null, open var placeholder: String="", description: String="") : Value<String>(name, value, isSupported, description)
+open class TextValue(name: String, value: String="", isSupported: (() -> Boolean)?=null, open var placeholder: String="", description: String="", open var protectedText: Boolean=false) : Value<String>(name, value, isSupported, description)
 /**
  * List value represents a selectable list of values
  */

@@ -5,7 +5,10 @@ import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.Window
 import gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.CenterConstraint
+import gg.essential.elementa.constraints.RainbowColorConstraint
 import gg.essential.elementa.constraints.ScaleConstraint
+import gg.essential.elementa.constraints.animation.Animations
+import gg.essential.elementa.dsl.animate
 import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.pixels
@@ -17,6 +20,7 @@ import me.mrfunny.elementalclient.event.Render2DEvent
 import me.mrfunny.elementalclient.event.WorldBeginLoadEvent
 import me.mrfunny.elementalclient.modules.HudModule
 import me.mrfunny.elementalclient.modules.ModuleManager
+import me.mrfunny.elementalclient.util.MinecraftInstance
 import java.util.function.Consumer
 import kotlin.math.round
 
@@ -24,36 +28,49 @@ class HudScreen {
     val window = Window(ElementaVersion.V2)
     val matrix = UMatrixStack()
     var initialised = false
-
-    fun init() {
-        window.clearChildren()
-        for (module in ModuleManager.modules) {
-            if(module !is HudModule) continue
-            module.root = module.buildComponent()
-            for (child in module.root!!.children) {
-                if(child is UIText) continue
-                child.constrain {
-                    width = ScaleConstraint(width, module.scale)
-                    height = ScaleConstraint(width, module.scale)
+    companion object {
+        fun assignHudComponents(window: Window) {
+            window.clearChildren()
+            for (module in ModuleManager.modules) {
+                if(module !is HudModule) continue
+                module.root = module.buildComponent()
+                for (child in module.root!!.children) {
+                    if(child is UIText) continue
+//                    child.constrain {
+//                        width = module.scale)
+//                        height = ScaleConstraint(width, module.scale)
+//                    }
+                }
+                assignModuleConstraints(module)
+                if(module.state) {
+                    module.root!! childOf window
                 }
             }
-            assignModuleConstraints(module)
-            if(module.state) {
-
-                module.root!! childOf window
+        }
+        private fun assignModuleConstraints(module: HudModule) {
+            module.root?.constrain {
+                x = module.xPos.pixels
+                y = module.yPos.pixels
+//                width = ScaleConstraint(width, module.scale)
+//                height = ScaleConstraint(width, module.scale)
             }
         }
+    }
+    fun init() {
+        assignHudComponents(window)
         initialised = true
     }
-
-    private fun assignModuleConstraints(module: HudModule) {
-        module.root?.constrain {
-            x = module.xPos.pixels
-            y = module.yPos.pixels
-            width = ScaleConstraint(width, module.scale)
-            height = ScaleConstraint(width, module.scale)
-        }
+    private var isPaused = false
+    fun pause() {
+        isPaused = true
     }
+
+    fun unpause() {
+        init()
+        isPaused = false
+    }
+
+
 
     @EventLink
     val onRender = Consumer<Render2DEvent> {
@@ -91,6 +108,12 @@ class HudScreen {
 //    }
 
     private fun render() {
+        if(isPaused) {
+            if(MinecraftInstance.mc.currentScreen == null) {
+                unpause()
+            }
+            return
+        }
         matrix.push()
         window.draw(matrix)
         matrix.pop()

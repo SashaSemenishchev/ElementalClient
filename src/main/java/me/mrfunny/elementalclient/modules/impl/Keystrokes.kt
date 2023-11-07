@@ -41,8 +41,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
     val keybindMap = hashMapOf<KeyBinding, TextBlock>()
     override fun buildComponent(): UIComponent {
         val result = UIContainer().constrain {
-            width = ChildBasedSizeConstraint()
-            height = ChildBasedSizeConstraint()
+            width = ChildBasedRangeConstraint()
+            height = ChildBasedRangeConstraint()
         }
 
         // W
@@ -88,7 +88,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         } childOf result
 
         // A
-        makeBlock(mc.gameSettings.keyBindLeft).also {
+        val lastBottom = makeBlock(mc.gameSettings.keyBindLeft).also {
             it.constrain {
                 x = 0.pixels
                 y = 18.pixels
@@ -101,28 +101,53 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             }
         } childOf result
         val space = mc.gameSettings.keyBindJump
-        if(showSpacebar) {
+        val mouseBound = if(showSpacebar) {
             val bg = UIBlock(bgColor.toAlphaConstraint()).constrain {
-                width = 54.pixels
+                width = 53.pixels
                 height = 10.pixels
             }
             val content = UIBlock(textColor.toAlphaConstraint()).constrain {
                 y = CenterConstraint() boundTo bg
                 x = CenterConstraint() boundTo bg
                 width = 20.pixels
-                height = 1.5.pixels
+                height = 1.pixels
             }
-            keybindMap[space] = TextBlock(content, bg).constrain {
-                y = SiblingConstraint(2f)
+            val spaceBlock = TextBlock(content, bg).constrain {
+                y = SiblingConstraint() + 1f.pixels
             }.also { it childOf result }
-//            UIBlock(Color.BLACK).constrain {
-//                width = FillConstraint()
-//                height = 5.pixels
-//            } childOf result
+            keybindMap[space] = spaceBlock
+            spaceBlock
         } else {
             keybindMap.remove(space)
+            lastBottom
         }
 
+        if(showButtons) {
+
+            makeBlock(mc.gameSettings.keyBindAttack).also {
+                it.constrain {
+                    y = SiblingConstraint(1f) boundTo mouseBound
+                    height = 17.pixels
+                    width = 26.pixels
+                }
+                it.bg.constrain {
+                    width = it.getWidth().pixels
+                    height = it.getHeight().pixels
+                }
+            } childOf result
+            makeBlock(mc.gameSettings.keyBindUseItem).also {
+                it.constrain {
+                    y = SiblingConstraint(1f) boundTo mouseBound
+                    x = 27.pixels
+                    height = 17.pixels
+                    width = 26.pixels
+                }
+                it.bg.constrain {
+                    width = it.getWidth().pixels
+                    height = it.getHeight().pixels
+                }
+            } childOf result
+        }
         return result
     }
 
@@ -183,8 +208,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             bg childOf this
             content childOf this
             this.constrain {
-                width = ChildBasedSizeConstraint()
-                height = ChildBasedSizeConstraint()
+                width = ChildBasedRangeConstraint()
+                height = ChildBasedRangeConstraint()
             }
         }
     }
