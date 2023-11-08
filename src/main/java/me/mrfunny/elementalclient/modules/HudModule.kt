@@ -11,7 +11,7 @@ abstract class HudModule(name: String, description: String): Module(name, descri
     @delegate:InternalField
     var yPos by FloatValue("yPos", Display.getHeight() / 2f, 0f..Short.MAX_VALUE.toFloat())
     @delegate:InternalField
-    var scale by FloatValue("yPos", 1f, 0.1f..10f)
+    var scale by FloatValue("scale", 1f, 0.1f..10f)
 
     abstract fun buildComponent(): UIComponent
 

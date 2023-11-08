@@ -1,12 +1,11 @@
 package me.mrfunny.elementalclient.ui.hud
 
 import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.Window
 import gg.essential.elementa.components.inspector.Inspector
-import gg.essential.elementa.constraints.CenterConstraint
-import gg.essential.elementa.constraints.RainbowColorConstraint
-import gg.essential.elementa.constraints.ScaleConstraint
+import gg.essential.elementa.constraints.*
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.animate
 import gg.essential.elementa.dsl.childOf
@@ -34,13 +33,13 @@ class HudScreen {
             for (module in ModuleManager.modules) {
                 if(module !is HudModule) continue
                 module.root = module.buildComponent()
-                for (child in module.root!!.children) {
-                    if(child is UIText) continue
-//                    child.constrain {
-//                        width = module.scale)
-//                        height = ScaleConstraint(width, module.scale)
-//                    }
-                }
+//                for (child in module.root!!.children) {
+//                    if(child is UIText) continue
+////                    child.constrain {
+////                        width = module.scale)
+////                        height = ScaleConstraint(width, module.scale)
+////                    }
+//                }
                 assignModuleConstraints(module)
                 if(module.state) {
                     module.root!! childOf window
@@ -48,11 +47,27 @@ class HudScreen {
             }
         }
         private fun assignModuleConstraints(module: HudModule) {
-            module.root?.constrain {
+            val root = module.root ?: return
+            root.constrain {
                 x = module.xPos.pixels
                 y = module.yPos.pixels
-//                width = ScaleConstraint(width, module.scale)
-//                height = ScaleConstraint(width, module.scale)
+            }
+            assignChildrenScale(module.scale, root)
+        }
+
+        private fun assignChildrenScale(scale: Float, component: UIComponent) {
+            val height = component.constraints.height
+            val width = component.constraints.width
+            if(height is MasterConstraint) {
+                component.constraints.height = ScaleConstraint(height, scale)
+            }
+
+            if(height is MasterConstraint) {
+                component.constraints.width = ScaleConstraint(width, scale)
+            }
+            if(component.children.size == 0) return
+            for (child in component.children) {
+                assignChildrenScale(scale, child)
             }
         }
     }

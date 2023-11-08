@@ -10,35 +10,37 @@ import gg.essential.elementa.constraints.*
 import gg.essential.elementa.constraints.animation.AnimationStrategy
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
+import gg.essential.elementa.state.BasicState
 import gg.essential.universal.UKeyboard
+import me.mrfunny.elementalclient.ElementalClient
 import me.mrfunny.elementalclient.event.EventLink
 import me.mrfunny.elementalclient.event.KeyEvent
 import me.mrfunny.elementalclient.event.KeyStateChangeEvent
-import me.mrfunny.elementalclient.modules.BoolValue
-import me.mrfunny.elementalclient.modules.ColorValue
-import me.mrfunny.elementalclient.modules.HudModule
-import me.mrfunny.elementalclient.modules.PercentageValue
+import me.mrfunny.elementalclient.modules.*
+import me.mrfunny.elementalclient.services.CpsService
 import me.mrfunny.elementalclient.ui.Components.toAlphaConstraint
 import net.minecraft.client.settings.KeyBinding
 import java.awt.Color
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 
 class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
     val textColor by ColorValue("Text color", Color.WHITE)
-//    val textOpacity by PercentageValue("Text opacity", .1f)
     val textColorWhenPressed by ColorValue("Text color when pressed", Color.BLACK)
-//    val textOpacityWhenPRessed by PercentageValue("Text opacity when pressed", .1f)
     val bgColor by ColorValue("Background color", Color.WHITE)
-//    val bgOpacity by PercentageValue("Background opacity", 0f)
     val bgColorWhenPressed by ColorValue("Background color when pressed", Color.WHITE)
-//    val bgOpacityWhenPressed by PercentageValue("Background opacity when pressed", .1f)
     val showButtons by BoolValue("Show Mouse buttons", false)
     val showCps by BoolValue("Show CPS", false, isSupported = {showButtons})
-
     val showSpacebar by BoolValue("Show Spacebar", true)
 
-    val keybindMap = hashMapOf<KeyBinding, TextBlock>()
+    private val keybindMap = hashMapOf<KeyBinding, TextBlock>()
+
+    init {
+        ElementalClient.executor.scheduleAtFixedRate({
+            updateCpsStates()
+        }, 0, 1, TimeUnit.SECONDS)
+    }
     override fun buildComponent(): UIComponent {
         val result = UIContainer().constrain {
             width = ChildBasedRangeConstraint()
@@ -48,7 +50,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         // W
         makeBlock(mc.gameSettings.keyBindForward).also {
             it.constrain {
-                x = 18.pixels
+                x = (18 * scale).pixels
                 y = 0.pixels
                 width = 17.pixels
                 height = 17.pixels
@@ -62,8 +64,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         // S
         makeBlock(mc.gameSettings.keyBindBack).also {
             it.constrain {
-                x = 18.pixels
-                y = 18.pixels
+                x = (18 * scale).pixels
+                y = (18 * scale).pixels
                 width = 17.pixels
                 height = 17.pixels
             }
@@ -76,8 +78,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         // D
         makeBlock(mc.gameSettings.keyBindRight).also {
             it.constrain {
-                x = 36.pixels
-                y = 18.pixels
+                x = (36 * scale).pixels
+                y = (18 * scale).pixels
                 width = 17.pixels
                 height = 17.pixels
             }
@@ -91,7 +93,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         val lastBottom = makeBlock(mc.gameSettings.keyBindLeft).also {
             it.constrain {
                 x = 0.pixels
-                y = 18.pixels
+                y = (18 * scale).pixels
                 width = 17.pixels
                 height = 17.pixels
             }
@@ -126,9 +128,12 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
 
             makeBlock(mc.gameSettings.keyBindAttack).also {
                 it.constrain {
-                    y = SiblingConstraint(1f) boundTo mouseBound
+                    y = SiblingConstraint(1f * scale) boundTo mouseBound
                     height = 17.pixels
                     width = 26.pixels
+                }
+                if(showCps) {
+                    makeCpsBlock(it, lmbCps)
                 }
                 it.bg.constrain {
                     width = it.getWidth().pixels
@@ -137,10 +142,13 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             } childOf result
             makeBlock(mc.gameSettings.keyBindUseItem).also {
                 it.constrain {
-                    y = SiblingConstraint(1f) boundTo mouseBound
-                    x = 27.pixels
+                    y = SiblingConstraint(1f * scale) boundTo mouseBound
+                    x = (27 * scale).pixels
                     height = 17.pixels
                     width = 26.pixels
+                }
+                if(showCps) {
+                    makeCpsBlock(it, rmbCps)
                 }
                 it.bg.constrain {
                     width = it.getWidth().pixels
@@ -151,16 +159,40 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         return result
     }
 
+    private fun makeCpsBlock(it: TextBlock, state: BasicState<String>) {
+        val container = UIContainer().constrain {
+            width = it.getWidth().pixels
+            height = it.getHeight().pixels
+        }
+        it.content childOf container
+        UIText(state).also { text ->
+            val old = it.content.constraints
+            text.constrain {
+                y = 1.pixels(true) boundTo container
+                x = CenterConstraint()
+                width = ScaleConstraint(width, 0.4f)
+                height = ScaleConstraint(height, 0.4f)
+                color = old.color
+            }
+        } childOf container
+        it.content = container
+        it.onUpdate = { newState ->
+            updateCpsStates()
+            for (child in it.content.children) {
+                child.animate {
+                    this.setColorAnimation(Animations.IN_OUT_SIN, .11f, (if(newState) textColorWhenPressed else textColor).toAlphaConstraint())
+                }
+            }
+        }
+        it.rebind()
+    }
+
     fun makeBlock(keyBinding: KeyBinding): TextBlock {
 
         val result = TextBlock(
             UIText(getBindName(keyBinding)).constrain {
                 x = CenterConstraint()
                 y = CenterConstraint()
-//                width = 14.pixels
-//                height = 14.pixels
-//                width = 100.percent
-//                height = 100.percent
                 color = textColor.toAlphaConstraint()
             },
             UIBlock(bgColor.toAlphaConstraint()).constrain {
@@ -191,8 +223,14 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         textBlock.bg.animate {
             this.setColorAnimation(strategy, .11f, bg)
         }
-        textBlock.content.animate {
-            this.setColorAnimation(strategy, .11f, text)
+
+        val update = textBlock.onUpdate
+        if(update == null) {
+            textBlock.content.animate {
+                this.setColorAnimation(strategy, .11f, text)
+            }
+        } else {
+            update(it.newState)
         }
     }
 
@@ -203,7 +241,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             else -> UKeyboard.getKeyName(keyBinding) ?: "Unknown"
         }
     }
-    class TextBlock(val content: UIComponent, val bg: UIBlock): UIContainer() {
+    class TextBlock(var content: UIComponent, val bg: UIBlock, var onUpdate: ((state: Boolean) -> Unit)?=null): UIContainer() {
         init {
             bg childOf this
             content childOf this
@@ -212,5 +250,21 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
                 height = ChildBasedRangeConstraint()
             }
         }
+
+        fun rebind() {
+            clearChildren()
+            bg childOf this
+            content childOf this
+        }
+    }
+
+    companion object {
+        fun updateCpsStates() {
+            lmbCps.set(CpsService.lmb.toString() + " CPS")
+            rmbCps.set(CpsService.rmb.toString() + " CPS")
+        }
+
+        @JvmField var lmbCps = BasicState("0 CPS")
+        @JvmField var rmbCps = BasicState("0 CPS")
     }
 }

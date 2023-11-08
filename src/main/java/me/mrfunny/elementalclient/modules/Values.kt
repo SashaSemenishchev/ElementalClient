@@ -137,3 +137,8 @@ open class ColorValue(name: String, value: Color=Color.WHITE, isSupported: (() -
 class BooleanDefinedState<T>(private val property: KMutableProperty0<Boolean>, private val boolTrue: T, private val boolFalse: T) : State<T>() {
     override fun get(): T = if(property.get()) boolTrue else boolFalse
 }
+
+class FieldBackedState<T>(private val property: KMutableProperty0<T>) : State<T>() {
+    override fun get(): T = property.get()
+    override fun set(value: T) = property.set(value)
+}

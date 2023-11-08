@@ -7,6 +7,7 @@ import me.mrfunny.elementalclient.event.EventLink
 import me.mrfunny.elementalclient.event.TickEvent
 import me.mrfunny.elementalclient.event.WorldBeginLoadEvent
 import me.mrfunny.elementalclient.modules.ModuleManager
+import me.mrfunny.elementalclient.services.Service
 import me.mrfunny.elementalclient.ui.hud.HudEditGui
 import me.mrfunny.elementalclient.ui.hud.HudScreen
 import me.mrfunny.elementalclient.ui.misc.ElementalMainMenu
@@ -48,6 +49,9 @@ object ElementalClient {
         eventBus.registerListener(BaseHandler())
         eventBus.registerListener(hudScreen)
         ModuleManager.init()
+        for (service in Service.services) {
+            eventBus.registerListener(service)
+        }
 //        for (field in VigilancePalette::class.java.declaredFields) {
 //            val modification = ElementalPalette.paletteModifications[field.name] ?: continue
 //            if (field.type.simpleName != "BasicState") continue
