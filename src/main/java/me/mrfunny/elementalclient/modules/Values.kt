@@ -24,9 +24,11 @@ abstract class Value<T>(val name: String, open var value: T, val isSupportedPred
         val oldValue = value
 
         try {
-            val handledValue = onChange(oldValue, newValue)
+            val handledValue = onChangeRequested(oldValue, newValue)
             if (handledValue == oldValue) return false
             onChangeListener(oldValue, newValue)
+            value = handledValue
+            onChanged(oldValue, newValue)
             return true
         } catch (e: Exception) {
             return false
@@ -37,8 +39,10 @@ abstract class Value<T>(val name: String, open var value: T, val isSupportedPred
 
     fun get() = value
 
-    protected open fun onChange(oldValue: T, newValue: T): T {
+    protected open fun onChangeRequested(oldValue: T, newValue: T): T {
         return newValue
+    }
+    protected open fun onChanged(oldValue: T, newValue: T) {
     }
     open fun isSupported() = isSupportedPredicate?.invoke() ?: true
 
@@ -71,7 +75,7 @@ open class IntegerValue(name: String, value: Int=0, val range: IntRange = 0..Int
     // TODO: Remove when all modules are ported to Kotlin
 //    constructor(name: String, value: Int, minimum: Int, maximum: Int) : this(name, value, minimum..maximum, isSupported, description, isSlider)
 
-    fun set(newValue: Number) = set(newValue.toInt())
+    fun set(newValue: Number) = set(newValue.toInt().coerceIn(range))
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
@@ -87,7 +91,7 @@ open class FloatValue(name: String, value: Float, val range: ClosedFloatingPoint
                       isSupported: (() -> Boolean)?=null, description: String=""):
     Value<Float>(name, value, isSupported, description) {
 
-    fun set(newValue: Number) = set(newValue.toFloat())
+    fun set(newValue: Number) = set(newValue.toFloat().coerceIn(range))
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum

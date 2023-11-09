@@ -19,6 +19,7 @@ import me.mrfunny.elementalclient.event.Render2DEvent
 import me.mrfunny.elementalclient.event.WorldBeginLoadEvent
 import me.mrfunny.elementalclient.modules.HudModule
 import me.mrfunny.elementalclient.modules.ModuleManager
+import me.mrfunny.elementalclient.ui.misc.FinalScaleConstraint
 import me.mrfunny.elementalclient.util.MinecraftInstance
 import java.util.function.Consumer
 import kotlin.math.round
@@ -33,20 +34,28 @@ class HudScreen {
             for (module in ModuleManager.modules) {
                 if(module !is HudModule) continue
                 module.root = module.buildComponent()
-//                for (child in module.root!!.children) {
-//                    if(child is UIText) continue
-////                    child.constrain {
-////                        width = module.scale)
-////                        height = ScaleConstraint(width, module.scale)
-////                    }
-//                }
                 assignModuleConstraints(module)
                 if(module.state) {
                     module.root!! childOf window
                 }
             }
         }
-        private fun assignModuleConstraints(module: HudModule) {
+
+        fun getModuleComponents(): List<HudComponent> {
+            val list = mutableListOf<HudComponent>()
+            for (module in ModuleManager.modules) {
+                if(module !is HudModule) continue
+                val component = module.buildComponent()
+                module.root = component
+                assignModuleConstraints(module)
+                if(module.state) {
+                    list.add(component)
+                }
+            }
+
+            return list;
+        }
+        fun assignModuleConstraints(module: HudModule) {
             val root = module.root ?: return
             root.constrain {
                 x = module.xPos.pixels
@@ -59,11 +68,21 @@ class HudScreen {
             val height = component.constraints.height
             val width = component.constraints.width
             if(height is MasterConstraint) {
-                component.constraints.height = ScaleConstraint(height, scale)
+                if(height !is FinalScaleConstraint) {
+                    component.constraints.height = FinalScaleConstraint(height, scale)
+                } else {
+                    height.constraint.recalculate = true
+                    height.value = scale
+                }
             }
 
-            if(height is MasterConstraint) {
-                component.constraints.width = ScaleConstraint(width, scale)
+            if(width is MasterConstraint) {
+                if(width !is FinalScaleConstraint) {
+                    component.constraints.width = FinalScaleConstraint(width, scale)
+                } else {
+                    width.constraint.recalculate = true
+                    width.value = scale
+                }
             }
             if(component.children.size == 0) return
             for (child in component.children) {

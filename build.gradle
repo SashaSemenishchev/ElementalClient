@@ -138,4 +138,12 @@ task copyZipInclude(type: Copy) {
     into 'build/libs/zip'
 }
 
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}
+
 build.dependsOn copyZipInclude

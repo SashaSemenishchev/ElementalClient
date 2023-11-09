@@ -20,12 +20,30 @@ import kotlin.reflect.KMutableProperty0
 class CpsService {
     companion object {
         var lmb = 0
+//            set(value) {
+//                println("updating rmb: $value")
+//                field = value
+//            }
         var rmb = 0
+//            set(value) {
+//                println("updating rmb: $value")
+//                field = value
+//            }
 
         private var lmbClicksCount = 0
         private var lmbLastClicked = 0L
         private var rmbClicksCount = 0
         private var rmbLastClicked = 0L
+
+        fun checkClicks() {
+            if(lmbClicksCount == 0) {
+                lmb = 0
+            }
+
+            if(rmbClicksCount == 0) {
+                rmb = 0
+            }
+        }
         @JvmField val executor = Executors.newSingleThreadScheduledExecutor()
     }
 
@@ -40,6 +58,8 @@ class CpsService {
             update(Companion::rmb, Companion::rmbLastClicked, Companion::rmbClicksCount)
         }
     }
+
+
 
     fun update(cpsField: KMutableProperty0<Int>, lastClicked: KMutableProperty0<Long>, clicksCount: KMutableProperty0<Int>) {
         val now = System.currentTimeMillis()
@@ -61,9 +81,6 @@ class CpsService {
                 if(actualVal > 0) {
                     clicksCount.set(actualVal - 1)
                 }
-
-            } else {
-                cpsField.set(max(0, cpsField.get() - 1))
             }
             Keystrokes.updateCpsStates()
         }, 1, TimeUnit.SECONDS)

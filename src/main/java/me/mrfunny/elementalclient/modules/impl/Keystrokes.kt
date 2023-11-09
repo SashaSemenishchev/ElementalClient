@@ -19,6 +19,7 @@ import me.mrfunny.elementalclient.event.KeyStateChangeEvent
 import me.mrfunny.elementalclient.modules.*
 import me.mrfunny.elementalclient.services.CpsService
 import me.mrfunny.elementalclient.ui.Components.toAlphaConstraint
+import me.mrfunny.elementalclient.ui.hud.HudComponent
 import net.minecraft.client.settings.KeyBinding
 import java.awt.Color
 import java.util.*
@@ -41,11 +42,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             updateCpsStates()
         }, 0, 1, TimeUnit.SECONDS)
     }
-    override fun buildComponent(): UIComponent {
-        val result = UIContainer().constrain {
-            width = ChildBasedRangeConstraint()
-            height = ChildBasedRangeConstraint()
-        }
+    override fun buildComponent(): HudComponent {
+        val result = HudComponent(this)
 
         // W
         makeBlock(mc.gameSettings.keyBindForward).also {
@@ -168,7 +166,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         UIText(state).also { text ->
             val old = it.content.constraints
             text.constrain {
-                y = 1.pixels(true) boundTo container
+                y = 0.pixels(true) boundTo container
                 x = CenterConstraint()
                 width = ScaleConstraint(width, 0.4f)
                 height = ScaleConstraint(height, 0.4f)
@@ -262,6 +260,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         fun updateCpsStates() {
             lmbCps.set(CpsService.lmb.toString() + " CPS")
             rmbCps.set(CpsService.rmb.toString() + " CPS")
+            CpsService.checkClicks()
         }
 
         @JvmField var lmbCps = BasicState("0 CPS")

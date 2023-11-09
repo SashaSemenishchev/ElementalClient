@@ -2,13 +2,12 @@ package me.mrfunny.elementalclient.ui
 
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIBlock
-import gg.essential.elementa.components.UIText
 import gg.essential.elementa.constraints.*
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
-import gg.essential.elementa.events.UIClickEvent
+import gg.essential.elementa.constraints.resolution.ConstraintVisitor
+import gg.essential.elementa.state.BasicState
+import gg.essential.elementa.state.MappedState
+import gg.essential.elementa.state.State
 import java.awt.Color
-import java.util.function.Consumer
 
 object Components {
 //    fun UIComponent.button(content: String, x: XConstraint, y: YConstraint, width: WidthConstraint, height: HeightConstraint, click: Consumer<UIClickEvent>, background: Color=Color.BLACK): UIComponent {
