@@ -10,29 +10,5 @@ import gg.essential.elementa.state.State
 import java.awt.Color
 
 object Components {
-//    fun UIComponent.button(content: String, x: XConstraint, y: YConstraint, width: WidthConstraint, height: HeightConstraint, click: Consumer<UIClickEvent>, background: Color=Color.BLACK): UIComponent {
-//        val text = UIText(content).constrain {
-//            this.x = CenterConstraint()
-//            this.y = CenterConstraint()
-//        }
-//
-//        return button(text, x, y, width, height, click, background)
-//    }
-    fun button(content: UIComponent, x: XConstraint, y: YConstraint, width: WidthConstraint, height: HeightConstraint, background: ColorConstraint): UIComponent {
-        return UIBlock()
-            .setColor(background)
-            .setX(x)
-            .setY(y)
-            .setWidth(width)
-            .setHeight(height)
-            .addChild(content)
-    }
-
-    private fun darkenWhenMouseEnter(background: Color): UIComponent.() -> Unit = {
-        val hsv = Color.RGBtoHSB(background.red, background.green, background.blue, null)
-        hsv[2] -= 0.1f
-        setColor(Color(Color.HSBtoRGB(hsv[0], hsv[1], hsv[2])))
-    }
-
     fun Color.toAlphaConstraint() = AlphaAspectColorConstraint(this, this.alpha / 255f)
 }

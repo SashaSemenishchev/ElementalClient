@@ -58,8 +58,7 @@ object ElementalClient {
         for (service in Service.services) {
             eventBus.registerListener(service)
         }
-//        Socket
-
+// TODO: Edit palette depending on the user preference
 //        for (field in VigilancePalette::class.java.declaredFields) {
 //            val modification = ElementalPalette.paletteModifications[field.name] ?: continue
 //            if (field.type.simpleName != "BasicState") continue

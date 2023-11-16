@@ -35,9 +35,8 @@ class HudEditGui : WindowScreen(ElementaVersion.V2) {
     private val currentComponent = AtomicReference<HudComponent>(null)
     private var clickPos: Pair<Float, Float>? = null
 
-    fun assignModuleAdditions() {
+    private fun assignModuleAdditions() {
         for (module in modules) {
-//            val block = UIBlock(AlphaAspectColorConstraint(Color.GRAY, 0.4f))
             module.onMouseEnter {
                 module.isSelected = true
             }.onMouseClick {
@@ -66,20 +65,12 @@ class HudEditGui : WindowScreen(ElementaVersion.V2) {
                         moduleRoot.getLeft() + mouseX - clickPos.first,
                         moduleRoot.getTop() + mouseY - clickPos.second
                     )
-//                    block.constrain {
-//                        height = module.getHeight().pixels
-//                        width = module.getWidth().pixels
-//                    }
                 }
             }.onMouseScroll {
                 if(it.currentTarget !== module) return@onMouseScroll
-                module.module.scale += it.delta.toFloat() / 100
-                println(module.module.scale)
+                val delta = it.delta.toFloat() / 100
+                module.module.scale += delta
                 module.module.update()
-//                block.constrain {
-//                    (height as UnscalableConstraint<PixelConstraint>).value = module.getHeight()
-//                    (width as UnscalableConstraint<PixelConstraint>).value = module.getWidth()
-//                }
             }
         }
     }

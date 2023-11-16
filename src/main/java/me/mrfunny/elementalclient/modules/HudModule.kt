@@ -6,16 +6,18 @@ import me.mrfunny.elementalclient.ui.hud.HudComponent
 import me.mrfunny.elementalclient.ui.hud.HudScreen
 import org.lwjgl.opengl.Display
 abstract class HudModule(name: String, description: String): Module(name, description) {
+
+    open fun getMinScale() = 0.1f
+    open fun getMaxScale() = 10f
+
     @delegate:InternalField
     var xPos by FloatValue("xPos", Display.getWidth() / 2f, 0f..Short.MAX_VALUE.toFloat())
     @delegate:InternalField
     var yPos by FloatValue("yPos", Display.getHeight() / 2f, 0f..Short.MAX_VALUE.toFloat())
     @delegate:InternalField
-    var scale by FloatValue("scale", getMinScale(), getMinScale()..getMaxScale())
+    var scale by FloatValue("scale", getMaxScale(), getMinScale()..getMaxScale())
 
     abstract fun buildComponent(): HudComponent
-    inline fun getMinScale() = 1.0f
-    inline fun getMaxScale() = 10f
 
     var root: HudComponent? = null
         set(value) {
@@ -32,6 +34,7 @@ abstract class HudModule(name: String, description: String): Module(name, descri
     }
 
     fun update() {
+//        println("Scale: $scale ($minScale-$maxScale) pos: $xPos $yPos")
         HudScreen.assignModuleConstraints(this)
     }
 }

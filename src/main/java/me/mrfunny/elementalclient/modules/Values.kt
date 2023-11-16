@@ -1,10 +1,5 @@
 package me.mrfunny.elementalclient.modules
 
-/*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
- */
 import gg.essential.elementa.state.State
 import gg.essential.vigilance.data.PropertyType
 import java.awt.Color
@@ -23,13 +18,12 @@ abstract class Value<T>(val name: String, open var value: T, val isSupportedPred
             return false
 
         val oldValue = value
-
         try {
             val handledValue = onChangeRequested(oldValue, newValue)
             if (handledValue == oldValue) return false
             onChangeListener(oldValue, newValue)
             value = handledValue
-            onChanged(oldValue, newValue)
+            onChanged(oldValue, handledValue)
             return true
         } catch (e: Exception) {
             return false
@@ -73,10 +67,9 @@ open class BoolValue(name: String, value: Boolean, isSupported: (() -> Boolean)?
 open class IntegerValue(name: String, value: Int=0, val range: IntRange = 0..Int.MAX_VALUE, isSupported: (() -> Boolean)?=null, description: String="", open var isSlider: Boolean=false)
     : Value<Int>(name, value, isSupported, description) {
 
-    // TODO: Remove when all modules are ported to Kotlin
-//    constructor(name: String, value: Int, minimum: Int, maximum: Int) : this(name, value, minimum..maximum, isSupported, description, isSlider)
-
-    fun set(newValue: Number) = super.set(newValue.toInt().coerceIn(range))
+    override fun onChangeRequested(oldValue: Int, newValue: Int): Int {
+        return newValue.coerceIn(range)
+    }
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
@@ -92,8 +85,10 @@ open class FloatValue(name: String, value: Float, val range: ClosedFloatingPoint
                       isSupported: (() -> Boolean)?=null, description: String=""):
     Value<Float>(name, value, isSupported, description) {
 
-    fun set(newValue: Number) = super.set(newValue.toFloat().coerceIn(range))
-
+//    override fun set(newValue: Float): Boolean = super.set(newValue.coerceIn(range))
+    override fun onChangeRequested(oldValue: Float, newValue: Float): Float {
+        return newValue.coerceIn(range)
+    }
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
 

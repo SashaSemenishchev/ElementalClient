@@ -36,6 +36,9 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
     val showCps by BoolValue("Show CPS", false, isSupported = {showButtons})
     val showSpacebar by BoolValue("Show Spacebar", true)
 
+    override fun getMaxScale(): Float = 2f
+    override fun getMinScale(): Float = 0.7f
+
     private val keybindMap = hashMapOf<KeyBinding, TextBlock>()
 
     init {
@@ -187,8 +190,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         it.rebind()
     }
 
-    fun makeBlock(keyBinding: KeyBinding): TextBlock {
-
+    private fun makeBlock(keyBinding: KeyBinding): TextBlock {
         val result = TextBlock(
             UIText(getBindName(keyBinding)).constrain {
                 x = CenterConstraint()

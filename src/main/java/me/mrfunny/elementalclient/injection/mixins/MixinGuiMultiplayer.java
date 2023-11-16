@@ -28,9 +28,5 @@ public class MixinGuiMultiplayer {
     @Inject(method = "connectToServer", at = @At("RETURN"))
     public void onConnect(ServerData server, CallbackInfo ci) {
         ElementalClient.INSTANCE.getDiscordHandler().updateServer(server);
-
-//        thread.start();
-
-//        ElementalClient.discordHandler.updateActivity("Playing on " + ip + " (" + populationInfo + ")").start();
     }
 }

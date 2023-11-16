@@ -15,7 +15,7 @@ object ProfileManager {
         get() = data.readText()
     init {
         if(!profiles.mkdirsIfNotExists() || !data.createIfNotExists()) {
-            println("Creating default profile")
+            ElementalClient.logger.info("Creating default profile")
             createProfile("default")
         }
     }

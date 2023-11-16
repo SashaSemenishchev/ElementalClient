@@ -58,7 +58,6 @@ abstract class Module @JvmOverloads constructor(
                 field = false
             }
             if(this::backingProperty.isInitialized) {
-//                Exception("Module change stacktrace").printStackTrace()
                 backingProperty.setValue(value)
             }
             if(!ModuleManager.disableWrites) ModuleManager.writeData()

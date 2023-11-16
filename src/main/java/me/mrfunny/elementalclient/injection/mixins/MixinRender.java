@@ -18,7 +18,6 @@ public class MixinRender {
     public <T extends Entity> void renderName(T entity, String str, double x, double y, double z, int maxDistance, CallbackInfo ci) {
         if(entity instanceof EntityPlayer) {
             RenderUtil.INSTANCE.renderBadge((EntityPlayer) entity);
-//            VigilancePalette.INSTANCE.getARROW_DOWN_7X4$Vigilance().create()
         }
     }
 }

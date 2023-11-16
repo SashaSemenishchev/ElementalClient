@@ -117,8 +117,6 @@ class ProfileNameDialog(onRun: ProfileNameDialog.(String) -> Boolean): UIContain
         return UIBlock(VigilancePalette.getMainBackground()).constrain {
             y = CenterConstraint()
             x = SiblingConstraint(5f)
-//            width = 50.pixels
-//            height = 10.pixels
             width = ChildBasedSizeConstraint() + 5.pixels
             height = ChildBasedSizeConstraint() + 5.pixels
         }.onMouseEnter {

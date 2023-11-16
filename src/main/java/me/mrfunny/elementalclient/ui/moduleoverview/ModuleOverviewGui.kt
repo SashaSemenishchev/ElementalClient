@@ -266,7 +266,6 @@ class ModuleOverviewGui : WindowScreen(
                 x = CenterConstraint()
                 y = SiblingConstraint(5f)
                 width = ChildBasedSizeConstraint()
-//                height = ChildBasedSizeConstraint()
             }
             val count = floor(componentsPerRow).roundToInt()
             for(i in 0 until count) {
@@ -288,21 +287,6 @@ class ModuleOverviewGui : WindowScreen(
             val module = it.module
             return@rebuildModules (lower in module.name.lowercase() || lower in module.spacedName.lowercase())
         }
-//        var hidden = 0
-//        val miniatures = moduleToMiniatures
-//        for (entry in miniatures.entries) {
-//            val module = entry.key
-//            val gui = entry.value
-//            if(lower in module.name.lowercase() || lower in module.spacedName.lowercase()) {
-//                gui.unhide(true)
-//                continue
-//            }
-//            if(!gui.hasParent) {
-//                gui childOf scroller
-//            }
-//            gui.hide(true)
-//            hidden++
-//        }
 
         if(scroller.children.size == 0) {
             if("shit" in lower) {

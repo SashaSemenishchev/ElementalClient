@@ -130,12 +130,6 @@ class ModuleMiniature(val module: Module) : UIBlock(VigilancePalette.getDividerD
         }.also { circle childOf it }
     }
     private fun morePropertiesDot(parent: UIComponent, state: BasicState<Color>) = makeCircle(2f).constrain {
-//        if(padding) {
-//            UIContainer().constrain {
-//                height = 0.2.pixels
-//                y = SiblingConstraint()
-//            } childOf parent
-//        }
         x = CenterConstraint()
         y = SiblingConstraint()
         color = ConstantColorConstraint(state)

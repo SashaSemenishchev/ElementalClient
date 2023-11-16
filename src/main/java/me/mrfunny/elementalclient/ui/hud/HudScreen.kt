@@ -19,8 +19,8 @@ import me.mrfunny.elementalclient.util.MinecraftInstance
 import java.util.function.Consumer
 
 class HudScreen {
-    val window = Window(ElementaVersion.V2)
-    val matrix = UMatrixStack()
+    private val window = Window(ElementaVersion.V2)
+    private val matrix = UMatrixStack()
     var initialised = false
     companion object {
         fun assignHudComponents(window: Window) {
@@ -131,17 +131,6 @@ class HudScreen {
             window.removeChild(root)
         }
     }
-//    fun rebuildModules() {
-//        window.clearChildren()
-//        for (module in ModuleManager.modules) {
-//            if(!module.state) continue
-//            ElementalClient.eventBus.callEvent(ModuleStateChangeEvent(module, module.state, true))
-//        }
-//    }
-//    @EventLink
-//    val onWorldLoad = Consumer<WorldBeginLoadEvent> {
-//        rebuildModules()
-//    }
 
     private fun render() {
         if(isPaused) {
