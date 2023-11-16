@@ -8,6 +8,8 @@ import me.mrfunny.elementalclient.util.MinecraftInstance
 import scala.Enumeration.Val
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.javaType
 
 abstract class Module @JvmOverloads constructor(
 
@@ -74,9 +76,24 @@ abstract class Module @JvmOverloads constructor(
             }.filterIsInstance<Value<*>>().distinctBy { it.name }
 
     val internalValues = arrayListOf<Value<*>>()
+    val valueLookupTable = hashMapOf<String, Value<*>>()
     fun init() {
         internalValues.addAll(getInternalValues(javaClass))
         postInit()
+        for (value in values) {
+            valueLookupTable[value.name.lowercase()] = value
+        }
+        for (value in internalValues) {
+            valueLookupTable[value.name.lowercase()] = value
+        }
+    }
+
+    fun <T> lookupValue(property: KMutableProperty0<T>): Value<T>? {
+        return valueLookupTable[property.name.lowercase()] as Value<T>
+    }
+    fun <T: Value<T>> lookupValue(name: String, clazz: Class<out T>): T? {
+        val lookup = valueLookupTable[name.lowercase()] ?: return null
+        return clazz.cast(lookup)
     }
 
     open fun postInit() {}

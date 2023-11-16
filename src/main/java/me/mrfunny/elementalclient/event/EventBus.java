@@ -42,7 +42,6 @@ public class EventBus {
      */
     public void registerListener(Object listener) {
         Class<?> clazz = listener.getClass();
-        System.out.println("Registering " + clazz + " as listener");
         boolean kotlinCitizen = false;
         for(Annotation annotation : clazz.getAnnotations()) {
             if(!annotation.annotationType().getName().equals("kotlin.Metadata")) continue;

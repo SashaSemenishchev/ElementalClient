@@ -2,6 +2,7 @@ package me.mrfunny.elementalclient
 
 import gg.essential.universal.UScreen
 import me.mrfunny.elementalclient.api.ClientUpdate.gitInfo
+import me.mrfunny.elementalclient.discord.DiscordHandler
 import me.mrfunny.elementalclient.event.EventBus
 import me.mrfunny.elementalclient.event.EventLink
 import me.mrfunny.elementalclient.event.TickEvent
@@ -16,7 +17,10 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.settings.KeyBinding
 import net.minecraftforge.fml.client.registry.ClientRegistry
 import net.minecraftforge.fml.common.Mod.EventHandler
+import org.apache.logging.log4j.LogManager.getLogger
+//import org.apache.log4j.Logger.getLogger
 import org.lwjgl.input.Keyboard
+import java.net.Socket
 import java.util.concurrent.Executors
 import java.util.function.Consumer
 import java.util.logging.Logger
@@ -34,14 +38,16 @@ object ElementalClient {
 
     val clientTitle = CLIENT_NAME + " " + clientVersionText + " " + clientCommit + "  | " + MINECRAFT_VERSION + if (IN_DEV) " | DEVELOPMENT BUILD" else ""
     val executor = Executors.newSingleThreadScheduledExecutor()
-    val logger = Logger.getLogger("ElementalClient")
-    val optionsKeyBinding: KeyBinding = KeyBinding("ElementalClient Master Key", Keyboard.KEY_RSHIFT, "Misc")
+    val logger = getLogger("ElementalClient")
+    val optionsKeyBinding: KeyBinding = KeyBinding("elementalclient.menu", Keyboard.KEY_RSHIFT, "misc")
 
     @JvmField
     val eventBus = EventBus()
     @JvmField
     val hudScreen = HudScreen()
+    val discordHandler: DiscordHandler = DiscordHandler()
     lateinit var mc: Minecraft
+    val startupTime = System.currentTimeMillis()
     fun startClient() {
         mc = Minecraft.getMinecraft()
         logger.info("Starting $clientTitle by $CLIENT_CREATOR")
@@ -52,6 +58,8 @@ object ElementalClient {
         for (service in Service.services) {
             eventBus.registerListener(service)
         }
+//        Socket
+
 //        for (field in VigilancePalette::class.java.declaredFields) {
 //            val modification = ElementalPalette.paletteModifications[field.name] ?: continue
 //            if (field.type.simpleName != "BasicState") continue
@@ -61,11 +69,14 @@ object ElementalClient {
 //        }
     }
 
+    fun shutdownClient() {
+        discordHandler.shutdown()
+    }
+
     class BaseHandler {
         @EventLink
         val ticker = Consumer<TickEvent> {
             if(optionsKeyBinding.isPressed) {
-//                UScreen.displayScreen(ModuleOverviewGui())
                 UScreen.displayScreen(ElementalMainMenu())
             }
         }

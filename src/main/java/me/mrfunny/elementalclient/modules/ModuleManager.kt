@@ -35,6 +35,7 @@ Vigilant(
             Keystrokes(),
             NoHurtCam,
             RenderOwnName,
+            DiscordRPC
 //            TestModule
         )
 

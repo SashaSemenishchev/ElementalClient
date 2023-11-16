@@ -17,6 +17,7 @@ abstract class Value<T>(val name: String, open var value: T, val isSupportedPred
     : ReadWriteProperty<Any?, T> {
     open var propertyPath: String? = null
     open var onChangeListener: (old: T, new: T) -> Unit = {_, _ -> }
+    val state = ValueBackedState(this)
     fun set(newValue: T): Boolean {
         if (newValue == value)
             return false
@@ -75,7 +76,7 @@ open class IntegerValue(name: String, value: Int=0, val range: IntRange = 0..Int
     // TODO: Remove when all modules are ported to Kotlin
 //    constructor(name: String, value: Int, minimum: Int, maximum: Int) : this(name, value, minimum..maximum, isSupported, description, isSlider)
 
-    fun set(newValue: Number) = set(newValue.toInt().coerceIn(range))
+    fun set(newValue: Number) = super.set(newValue.toInt().coerceIn(range))
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
@@ -91,7 +92,7 @@ open class FloatValue(name: String, value: Float, val range: ClosedFloatingPoint
                       isSupported: (() -> Boolean)?=null, description: String=""):
     Value<Float>(name, value, isSupported, description) {
 
-    fun set(newValue: Number) = set(newValue.toFloat().coerceIn(range))
+    fun set(newValue: Number) = super.set(newValue.toFloat().coerceIn(range))
 
     fun isMinimal() = value <= minimum
     fun isMaximal() = value >= maximum
@@ -145,4 +146,11 @@ class BooleanDefinedState<T>(private val property: KMutableProperty0<Boolean>, p
 class FieldBackedState<T>(private val property: KMutableProperty0<T>) : State<T>() {
     override fun get(): T = property.get()
     override fun set(value: T) = property.set(value)
+}
+
+class ValueBackedState<T>(private val value: Value<T>) : State<T>() {
+    override fun get(): T = value.value
+    override fun set(value: T) {
+        this.value.set(value)
+    }
 }

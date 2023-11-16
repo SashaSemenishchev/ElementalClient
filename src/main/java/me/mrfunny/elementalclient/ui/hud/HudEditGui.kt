@@ -6,12 +6,14 @@ import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.Window
 import gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.AlphaAspectColorConstraint
+import gg.essential.elementa.constraints.PixelConstraint
 import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.pixels
 import gg.essential.universal.UKeyboard
 import me.mrfunny.elementalclient.ElementalClient
 import me.mrfunny.elementalclient.ui.hud.HudScreen.Companion.assignHudComponents
+import me.mrfunny.elementalclient.ui.misc.UnscalableConstraint
 import org.lwjgl.input.Cursor
 import org.lwjgl.input.Mouse
 import java.awt.Color
@@ -35,18 +37,9 @@ class HudEditGui : WindowScreen(ElementaVersion.V2) {
 
     fun assignModuleAdditions() {
         for (module in modules) {
-            val block = UIBlock(AlphaAspectColorConstraint(Color.GRAY, 0.4f))
+//            val block = UIBlock(AlphaAspectColorConstraint(Color.GRAY, 0.4f))
             module.onMouseEnter {
-                block.constrain {
-                    x = 0.pixels
-                    y = 0.pixels
-                    height = module.getHeight().pixels
-                    width = module.getWidth().pixels
-                }
-
-                Window.enqueueRenderOperation {
-                    block childOf module
-                }
+                module.isSelected = true
             }.onMouseClick {
                 currentComponent.set(module)
                 clickPos =
@@ -61,9 +54,7 @@ class HudEditGui : WindowScreen(ElementaVersion.V2) {
                     currentComponent.set(null)
                 }
             }.onMouseLeave {
-                Window.enqueueRenderOperation {
-                    module.removeChild(block)
-                }
+                module.isSelected = false
             }.onMouseDrag { mouseX, mouseY, mouseButton ->
                 if(mouseButton != 0) return@onMouseDrag
                 val clickPos = this@HudEditGui.clickPos ?: return@onMouseDrag
@@ -75,19 +66,20 @@ class HudEditGui : WindowScreen(ElementaVersion.V2) {
                         moduleRoot.getLeft() + mouseX - clickPos.first,
                         moduleRoot.getTop() + mouseY - clickPos.second
                     )
-                    block.constrain {
-                        height = module.getHeight().pixels
-                        width = module.getWidth().pixels
-                    }
+//                    block.constrain {
+//                        height = module.getHeight().pixels
+//                        width = module.getWidth().pixels
+//                    }
                 }
             }.onMouseScroll {
                 if(it.currentTarget !== module) return@onMouseScroll
                 module.module.scale += it.delta.toFloat() / 100
+                println(module.module.scale)
                 module.module.update()
-                block.constrain {
-                    height = module.getHeight().pixels
-                    width = module.getWidth().pixels
-                }
+//                block.constrain {
+//                    (height as UnscalableConstraint<PixelConstraint>).value = module.getHeight()
+//                    (width as UnscalableConstraint<PixelConstraint>).value = module.getWidth()
+//                }
             }
         }
     }

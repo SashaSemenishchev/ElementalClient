@@ -99,17 +99,20 @@ class ModuleMiniature(val module: Module) : UIBlock(VigilancePalette.getDividerD
             }
         }.onLeftClick {
             val screen = ModuleManager.gui()
-            if(screen == null) {
+            if (screen == null) {
                 UChat.chat("ModuleManager breakey breakey")
                 return@onLeftClick
             }
             USound.playButtonPress()
             UScreen.displayScreen(screen)
             screen.guiAtModule(module)
-        } childOf statusBlock
+        }
         morePropertiesDot(dots, dotsColor)
         morePropertiesDot(dots, dotsColor)
         morePropertiesDot(dots, dotsColor)
+        if(module.values.isNotEmpty()) {
+            dots childOf statusBlock
+        }
     }
 
     fun update() {

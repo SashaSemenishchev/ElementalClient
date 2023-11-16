@@ -1,4 +1,5 @@
 import java.nio.file.Files
+import java.nio.file.Paths
 
 plugins {
     id "java"
@@ -10,14 +11,16 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.4.0"
 }
 
-def VIGILANCE_LIB = Files.readString(java.nio.file.Path.of("libs/Vigilance"))
+def VIGILANCE_LIB = new String(Files.readAllBytes(Paths.get("libs/Vigilance")))
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
-    maven { url = "https://jitpack.io/" }
+    maven {
+        url = "https://jitpack.io/"
+    }
     maven { url = "https://repo.essential.gg/repository/maven-public" }
+    mavenLocal()
 }
 
 archivesBaseName = project.archives_base_name
@@ -66,6 +69,13 @@ dependencies {
     include fileTree(include: ["*.jar"], dir: "libs")
     include("gg.essential:elementa-1.8.9-forge:507")
     include("gg.essential:universalcraft-1.8.9-forge")
+    include("com.kohlschutter.junixsocket:junixsocket-common:2.6.2")
+    include("com.kohlschutter.junixsocket:junixsocket-native-common:2.6.2")
+    include("com.github.caoimhebyrne:KDiscordIPC:09bc0cc") {
+        exclude group: 'com.kohlschutter.junixsocket'
+    }
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    include("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }
 
 shadowJar {

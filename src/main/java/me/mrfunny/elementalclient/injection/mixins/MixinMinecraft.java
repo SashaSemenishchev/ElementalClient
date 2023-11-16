@@ -6,7 +6,10 @@ import me.mrfunny.elementalclient.event.KeyEvent;
 import me.mrfunny.elementalclient.event.TickEvent;
 import me.mrfunny.elementalclient.event.WorldBeginLoadEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiScreenServerList;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -54,5 +57,17 @@ public class MixinMinecraft {
 
         if (Keyboard.getEventKeyState() && currentScreen == null)
             ElementalClient.eventBus.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
+    }
+
+    @Inject(method = "displayGuiScreen", at = @At("RETURN"))
+    public void handleScreen(GuiScreen guiScreenIn, CallbackInfo ci) {
+
+        if(guiScreenIn instanceof GuiMainMenu) {
+            ElementalClient.INSTANCE.getDiscordHandler().mainMenu();
+        }
+    }
+    @Inject(method = "shutdown", at = @At("RETURN"))
+    public void onShutdown(CallbackInfo ci) {
+        ElementalClient.INSTANCE.shutdownClient();
     }
 }

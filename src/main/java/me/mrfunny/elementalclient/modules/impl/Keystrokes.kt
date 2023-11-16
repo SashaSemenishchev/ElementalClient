@@ -20,6 +20,7 @@ import me.mrfunny.elementalclient.modules.*
 import me.mrfunny.elementalclient.services.CpsService
 import me.mrfunny.elementalclient.ui.Components.toAlphaConstraint
 import me.mrfunny.elementalclient.ui.hud.HudComponent
+import me.mrfunny.elementalclient.ui.misc.ScaledPixelConstraint
 import net.minecraft.client.settings.KeyBinding
 import java.awt.Color
 import java.util.*
@@ -44,11 +45,12 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
     }
     override fun buildComponent(): HudComponent {
         val result = HudComponent(this)
+        val scaleState = lookupValue(this::scale)?.state ?: return result
 
         // W
         makeBlock(mc.gameSettings.keyBindForward).also {
             it.constrain {
-                x = (18 * scale).pixels
+                x = ScaledPixelConstraint(BasicState(18f), scaleState)
                 y = 0.pixels
                 width = 17.pixels
                 height = 17.pixels
@@ -62,8 +64,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         // S
         makeBlock(mc.gameSettings.keyBindBack).also {
             it.constrain {
-                x = (18 * scale).pixels
-                y = (18 * scale).pixels
+                x = ScaledPixelConstraint(BasicState(18f), scaleState)
+                y = ScaledPixelConstraint(BasicState(18f), scaleState)
                 width = 17.pixels
                 height = 17.pixels
             }
@@ -76,8 +78,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         // D
         makeBlock(mc.gameSettings.keyBindRight).also {
             it.constrain {
-                x = (36 * scale).pixels
-                y = (18 * scale).pixels
+                x = ScaledPixelConstraint(BasicState(36f), scaleState)
+                y = ScaledPixelConstraint(BasicState(18f), scaleState)
                 width = 17.pixels
                 height = 17.pixels
             }
@@ -91,7 +93,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
         val lastBottom = makeBlock(mc.gameSettings.keyBindLeft).also {
             it.constrain {
                 x = 0.pixels
-                y = (18 * scale).pixels
+                y = ScaledPixelConstraint(BasicState(18f), scaleState)
                 width = 17.pixels
                 height = 17.pixels
             }
@@ -113,7 +115,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
                 height = 1.pixels
             }
             val spaceBlock = TextBlock(content, bg).constrain {
-                y = SiblingConstraint() + 1f.pixels
+                y = SiblingConstraint() + ScaledPixelConstraint(BasicState(1f), scaleState)
             }.also { it childOf result }
             keybindMap[space] = spaceBlock
             spaceBlock
@@ -141,7 +143,7 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             makeBlock(mc.gameSettings.keyBindUseItem).also {
                 it.constrain {
                     y = SiblingConstraint(1f * scale) boundTo mouseBound
-                    x = (27 * scale).pixels
+                    x = ScaledPixelConstraint(BasicState(27f), scaleState)
                     height = 17.pixels
                     width = 26.pixels
                 }
@@ -168,8 +170,8 @@ class Keystrokes : HudModule("Keystrokes", "Displays your keys") {
             text.constrain {
                 y = 0.pixels(true) boundTo container
                 x = CenterConstraint()
-                width = ScaleConstraint(width, 0.4f)
-                height = ScaleConstraint(height, 0.4f)
+                width = ScaleConstraint(width, 0.46f)
+                height = ScaleConstraint(height, 0.46f)
                 color = old.color
             }
         } childOf container

@@ -9,6 +9,7 @@
     "MixinChat",
     "MixinEntityRenderer",
     "MixinGuiIngame",
+    "MixinGuiMultiplayer",
     "MixinGuiScreen",
     "MixinKeyBinding",
     "MixinMinecraft",

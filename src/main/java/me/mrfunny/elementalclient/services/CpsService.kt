@@ -1,34 +1,18 @@
 package me.mrfunny.elementalclient.services
 
-import me.mrfunny.elementalclient.ElementalClient
 import me.mrfunny.elementalclient.event.EventLink
 import me.mrfunny.elementalclient.event.KeyStateChangeEvent
-import me.mrfunny.elementalclient.modules.ModuleManager
 import me.mrfunny.elementalclient.modules.impl.Keystrokes
 import me.mrfunny.elementalclient.util.MinecraftInstance
-import net.minecraft.client.Minecraft
-import org.lwjgl.Sys
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
-import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.roundToInt
-import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KMutableProperty0
 
 class CpsService {
     companion object {
         var lmb = 0
-//            set(value) {
-//                println("updating rmb: $value")
-//                field = value
-//            }
         var rmb = 0
-//            set(value) {
-//                println("updating rmb: $value")
-//                field = value
-//            }
 
         private var lmbClicksCount = 0
         private var lmbLastClicked = 0L
@@ -59,17 +43,15 @@ class CpsService {
         }
     }
 
-
-
     fun update(cpsField: KMutableProperty0<Int>, lastClicked: KMutableProperty0<Long>, clicksCount: KMutableProperty0<Int>) {
         val now = System.currentTimeMillis()
         val interval = now - lastClicked.get()
-//        println(interval)
         lastClicked.set(now)
         if(interval >= 5000) {
             cpsField.set(0)
             return
         }
+
         val clicksCountVal = clicksCount.get() + 1
         clicksCount.set(clicksCountVal)
         cpsField.set(clicksCountVal)
